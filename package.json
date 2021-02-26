@@ -1,0 +1,16 @@
+{
+  "name": "music-transposer",
+  "version": "1.0.0",
+  "description": "Tranpose chords to specified key",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eric Chow",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.5",
+    "html-to-docx": "^1.1.34",
+    "mammoth": "^1.4.16"
+  }
+}
