@@ -4,14 +4,14 @@ const cheerio = require('cheerio');
 const HTMLtoDOCX = require('html-to-docx');
 const mammoth = require('mammoth');
 
-const chords = [
+const flatChords = [
   'C',
-  'C#',
+  'Db',
   'D',
   'Eb',
   'E',
   'F',
-  'F#',
+  'Gb',
   'G',
   'Ab',
   'A',
@@ -19,31 +19,78 @@ const chords = [
   'B',
 ];
 
+const sharpChords = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
+
 const filePath = './10000 Reasons (E) EDIT.docx';
+const transpose = -2;
+let flat = false;
 
-mammoth
-  .convertToHtml({ path: './10000 Reasons (E).docx' }, { styleMap: 'b' })
-  .then((result) => {
-    const html = result.value;
-    const $ = cheerio.load(html);
-    console.log($.html());
-    $('strong').each((i, e) => {
-      const element = $(e);
-      element.text(element.text() + ' TEST');
-      console.log(element.text());
-    });
-    console.log($.html());
+const chords = flat ? flatChords : sharpChords;
 
-    (async () => {
-      const fileBuffer = await HTMLtoDOCX($.html(), null, {});
+const transposeChord = (chord, halfSteps) => {
+  let minor = false;
+  let restOfChord = '';
+  if (chord.indexOf('/') != -1) {
+    chordSplit = chord.split('/');
+    return (
+      transposeChord(chordSplit[0], halfSteps) +
+      '/' +
+      transposeChord(chordSplit[1], halfSteps)
+    );
+  }
+  if (chord.indexOf('m') != -1) {
+    minor = true;
+    chord = chord.substring(0, chord.length - 1);
+  }
+  if (chord.length > 1) {
+    restOfChord =
+      chord.indexOf('#') != -1 ? chord.substring(2) : chord.substring(1);
+    chord =
+      chord.indexOf('#') != -1 ? chord.substring(0, 2) : chord.substring(0, 1);
+  }
+  let diff = chords.indexOf(chord) + halfSteps;
+  if (diff < 0) {
+    diff = chords.length + diff;
+  } else if (diff >= chords.length) {
+    diff = diff - chords.length;
+  }
+  if (minor) {
+    return chords[diff] + 'm' + restOfChord;
+  } else {
+    return chords[diff] + restOfChord;
+  }
+};
 
-      fs.writeFile(filePath, fileBuffer, (error) => {
-        if (error) {
-          console.log('Docx file creation failed');
-          return;
-        }
-        console.log('Docx file created successfully');
-      });
-    })();
-  })
-  .done();
+(async () => {
+  const html = await mammoth.convertToHtml({
+    path: './10000 Reasons (E).docx',
+  });
+  const $ = cheerio.load(html.value);
+  $('strong').each((i, e) => {
+    const element = $(e);
+    element.text(transposeChord(element.text(), transpose));
+  });
+
+  const fileBuffer = await HTMLtoDOCX($.html(), null, {});
+
+  fs.writeFile(filePath, fileBuffer, (error) => {
+    if (error) {
+      console.log('Docx file creation failed');
+      return;
+    }
+    console.log('Docx file created successfully');
+  });
+})();
