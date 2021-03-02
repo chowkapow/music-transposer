@@ -7,7 +7,7 @@ const mammoth = require('mammoth');
 
 const { flatChords, sharpChords, questions, regExp } = require('./constants');
 
-let chords;
+let startingChords, finalChords;
 
 const transposeChord = (chord, halfSteps) => {
   let minor = false;
@@ -26,20 +26,22 @@ const transposeChord = (chord, halfSteps) => {
   }
   if (chord.length > 1) {
     if (chord.indexOf('#') != -1 || chord.indexOf('b') != -1) {
-      chord = chord.substring(0, 2);
       restOfChord = chord.substring(2);
+      chord = chord.substring(0, 2);
     } else {
-      chord = chord.substring(0, 1);
       restOfChord = chord.substring(1);
+      chord = chord.substring(0, 1);
     }
   }
-  let diff = chords.indexOf(chord) + halfSteps;
+  let diff = startingChords.indexOf(chord) + halfSteps;
   if (diff < 0) {
-    diff = chords.length + diff;
-  } else if (diff >= chords.length) {
-    diff = diff - chords.length;
+    diff = startingChords.length + diff;
+  } else if (diff >= startingChords.length) {
+    diff = diff - startingChords.length;
   }
-  return minor ? chords[diff] + 'm' + restOfChord : chords[diff] + restOfChord;
+  return minor
+    ? finalChords[diff] + 'm' + restOfChord
+    : finalChords[diff] + restOfChord;
 };
 
 (async () => {
@@ -49,9 +51,11 @@ const transposeChord = (chord, halfSteps) => {
   });
   const $ = cheerio.load(html.value);
 
-  chords = response.flats ? flatChords : sharpChords;
   const origKey = response.music.match(regExp)[1];
-  const halfSteps = chords.indexOf(response.newKey) - chords.indexOf(origKey);
+  startingChords = origKey.indexOf('b') != -1 ? flatChords : sharpChords;
+  finalChords = response.newKey.indexOf('b') != -1 ? flatChords : sharpChords;
+  const halfSteps =
+    finalChords.indexOf(response.newKey) - startingChords.indexOf(origKey);
 
   $('strong').each((i, e) => {
     const element = $(e);

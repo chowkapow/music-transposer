@@ -27,12 +27,6 @@ module.exports = {
       name: 'newKey',
       message: 'What is the new key?',
     },
-    {
-      type: 'confirm',
-      name: 'flats',
-      message: 'Do you prefer flats?',
-      default: false,
-    },
   ],
 
   regExp: /\(([^)]+)\)/,
