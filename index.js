@@ -5,38 +5,9 @@ const HTMLtoDOCX = require('html-to-docx');
 const inquirer = require('inquirer');
 const mammoth = require('mammoth');
 
-const flatChords = [
-  'C',
-  'Db',
-  'D',
-  'Eb',
-  'E',
-  'F',
-  'Gb',
-  'G',
-  'Ab',
-  'A',
-  'Bb',
-  'B',
-];
-
-const sharpChords = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
+const { flatChords, sharpChords, questions, regExp } = require('./constants');
 
 let chords;
-const regExp = /\(([^)]+)\)/;
 
 const transposeChord = (chord, halfSteps) => {
   let minor = false;
@@ -70,25 +41,6 @@ const transposeChord = (chord, halfSteps) => {
   }
   return minor ? chords[diff] + 'm' + restOfChord : chords[diff] + restOfChord;
 };
-
-const questions = [
-  {
-    type: 'input',
-    name: 'music',
-    message: 'What is the music?',
-  },
-  {
-    type: 'input',
-    name: 'newKey',
-    message: 'What is the new key?',
-  },
-  {
-    type: 'confirm',
-    name: 'flats',
-    message: 'Do you prefer flats?',
-    default: false,
-  },
-];
 
 (async () => {
   const response = await inquirer.prompt(questions);
