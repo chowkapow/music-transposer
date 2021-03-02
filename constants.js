@@ -20,7 +20,7 @@ module.exports = {
     {
       type: 'input',
       name: 'music',
-      message: 'What is the music?',
+      message: 'What is the music? (Exclude extension)',
     },
     {
       type: 'input',
